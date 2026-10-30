@@ -6,7 +6,9 @@ $fn = 100;
 SPACER_X_INCHES = 1;
 SPACER_Y_INCHES = 2;
 
-RAD_MM = 1.5;
+USE_CHAMFER = false;
+
+CORNER_MM = USE_CHAMFER ? 2 : 1.5;
 
 SPACER_Z_INCHES_AND_LABEL_SET = [
     [1/16, "1/16\""],
@@ -26,6 +28,14 @@ for (i = [0 : len(SPACER_Z_INCHES_AND_LABEL_SET) - 1]) {
     label = SPACER_Z_INCHES_AND_LABEL_SET[i][1];
 
     translate([(i * x) + (i * GAP_MM), 0, 0]) {
-        spacer_block([x, y, z], RAD_MM, label);
+        spacer_block(
+            xyz = [x, y, z],
+            corners = CORNER_MM,
+            label = label,
+            has_halfway_marker = true,
+            txt_size = 10,
+            txt_height = 1,
+            use_chamfer = USE_CHAMFER
+        );
     }
 }

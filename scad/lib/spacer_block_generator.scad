@@ -1,5 +1,13 @@
+include <../../dependencies/BelfrySCAD:BOSL2:v2.0.779/std.scad>
+
 module spacer_block(
-    xyz, rad, label, has_halfway_marker=true, txt_size=10, txt_height=1
+    xyz,
+    corners,
+    label,
+    has_halfway_marker=true,
+    txt_size=10,
+    txt_height=1,
+    use_chamfer=true
 ) {
     assert(
         is_list(xyz) && len(xyz) == 3,
@@ -11,23 +19,41 @@ module spacer_block(
 
     assert(is_string(label), "label must be a string");
 
-    assert(is_num(rad), "radius must be a number");
+    assert(is_num(corners), "corners must be a number");
 
     assert(is_bool(has_halfway_marker), "has_halfway_marker must be a boolean");
+
+    assert(is_bool(use_chamfer), "use_chamfer must be a boolean");
 
     x = xyz[0];
     y = xyz[1];
     z = xyz[2];
 
     difference() {
-        translate([rad, rad, 0]) {
-            linear_extrude(z) {
-                minkowski() {
-                    square([x - (2 * rad), y - (2 * rad)]);
-
-                    circle(r=rad);
-                }
-            }
+        if (use_chamfer) {
+            cuboid(
+                xyz,
+                chamfer = corners,
+                anchor = LEFT + FRONT + BOTTOM,
+                edges = [
+                    FRONT + LEFT,
+                    LEFT + BACK,
+                    BACK + RIGHT,
+                    RIGHT + FRONT
+                ]
+            );
+        } else {
+            cuboid(
+                xyz,
+                rounding = corners,
+                anchor = LEFT + FRONT + BOTTOM,
+                edges = [
+                    FRONT + LEFT,
+                    LEFT + BACK,
+                    BACK + RIGHT,
+                    RIGHT + FRONT
+                ]
+            );
         }
 
         if(has_halfway_marker) {
@@ -47,6 +73,7 @@ module spacer_block(
                 }
             }
         }
+
 
         if (len(label) > 0) {
             translate([x/2, y/2, z - txt_height]) {
